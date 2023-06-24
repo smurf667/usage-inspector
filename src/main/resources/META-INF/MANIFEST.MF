@@ -1,0 +1,4 @@
+Agent-Class: de.engehausen.inspector.Agent
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+Premain-Class: de.engehausen.inspector.Agent
