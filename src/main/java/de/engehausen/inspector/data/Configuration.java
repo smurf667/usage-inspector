@@ -2,6 +2,14 @@ package de.engehausen.inspector.data;
 
 import java.util.List;
 
+/**
+ * Configuration for the agent.
+ * @param excludes a list of regular expressions of class names to exclude
+ * @param includes a list of regular expressions of class names to include
+ * @param details flag to include individual method call counts
+ * @param out file name of the report JSON file to write
+ * @param reportIssues flag to output instrumentation problems at the end of the VM (output to {@code System.err})
+ */
 public record Configuration(List<String> excludes, List<String> includes, boolean details, String out, String reportIssues) {
 
 	/** file name of JSON formatted configuration */

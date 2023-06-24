@@ -37,6 +37,10 @@ import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.Descriptor;
 
+/**
+ * Transformer which tracks methods calls and outputs
+ * class and method usage (configurable).
+ */
 public class Transformer implements ClassFileTransformer {
 
 	protected final Map<String, Map<String, AtomicInteger>> classesUsed;
@@ -63,8 +67,11 @@ public class Transformer implements ClassFileTransformer {
 	 * b) {@code -javaagent:..jar=excludes=com+,org+:out=/tmp/result.json}.
 	 */
 	protected Transformer(final String agentArgs) {
+		// since the instrumented classes are determine here once,
+		// these to collections are not created thread-safe
 		classesUsed = new HashMap<>();
 		loadersUsed = new HashSet<>();
+		// this will be accessed only with synchronization
 		issues = new ArrayList<>();
 		classPool = ClassPool.getDefault();
 		classPool.childFirstLookup = true;
@@ -113,6 +120,9 @@ public class Transformer implements ClassFileTransformer {
 		INSTANCE = this;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public synchronized byte[] transform(
 		final Module module,
@@ -145,14 +155,29 @@ public class Transformer implements ClassFileTransformer {
 			);
 	}
 
+	/**
+	 * Shutdown hook to produce the {@link #report()}.
+	 * @return a thread with the reporter.
+	 */
 	public Thread atShutdown() {
 		return new Thread(this::report);
 	}
 
+	/**
+	 * Returns the singleton transformer instance.
+	 * @return the singleton transformer instance.
+	 */
 	protected static Transformer instance() {
 		return INSTANCE;
 	}
 
+	/**
+	 * Returns a regular expression pattern based on a list of
+	 * regular expressions.
+	 * @param regexs a list of regular expressions, may be {@code null}
+	 * @param defaultPattern the default pattern to use of no expressions are given in the first parameter
+	 * @return a pattern to be used for exclusions and inclusions
+	 */
 	protected Pattern getPattern(final List<String> regexs, final String defaultPattern) {
 		if (regexs == null || regexs.isEmpty()) {
 			return Pattern.compile(defaultPattern, Pattern.MULTILINE);
@@ -168,6 +193,15 @@ public class Transformer implements ClassFileTransformer {
 		);
 	}
 
+	/**
+	 * Attempts to instrument the given class to count its method invocations.
+	 * Some standard packages (JDK etc) are always excluded.
+	 * 
+	 * @param className the name of the class to instrument
+	 * @param counters a thread-safe map of counter for method names of the class being instrumented
+	 * @param classfileBuffer the classfile contents
+	 * @return the potentially modified classfile
+	 */
 	protected byte[] monitorMethods(final String className, final Map<String, AtomicInteger> counters, final byte[] classfileBuffer) {
 		final String name = Descriptor.toJavaName(className);
 
@@ -200,6 +234,11 @@ public class Transformer implements ClassFileTransformer {
 		return classfileBuffer;
 	}
 
+	/**
+	 * Classes that are generally excluded from instrumentation.
+	 * @param className the name of the class to check
+	 * @return {@code true} if the class is not to be instrumented
+	 */
 	protected boolean untransformable(final String className) {
 		return className.startsWith("java/") || 
 			className.startsWith("com/sun/") ||
@@ -208,22 +247,40 @@ public class Transformer implements ClassFileTransformer {
 			className.startsWith("de/engehausen/inspector");
 	}
 
+	/**
+	 * Checks the name of the class with the exclusion and inclusion patterns.
+	 * Classes that match the exclusions or don't match the inclusions are
+	 * ignored
+	 * @param className the name of the class to check
+	 * @return  {@code true} if the class is to be ignored
+	 */
 	protected boolean reject(final String className) {
-		// hm, think this through ;-)
 		return excludes.matcher(className).matches() ||
 			!includes.matcher(className).matches();
 	}
 
+	/**
+	 * Checks whether the given class can be instrumented.
+	 * @param candidate the class to check
+	 * @return {@code true} if it is considered instrumentable.
+	 */
 	protected boolean modifiable(final CtClass candidate) {
 		return !(candidate.isAnnotation() || candidate.isArray() || candidate.isPrimitive());
 	}
 
+	/**
+	 * Records an issue that occurred during instrumentation.
+	 * @param message the message to record
+	 */
 	protected void recordIssue(final String message) {
 		synchronized (issues) {
 			issues.add(message);
 		}
 	}
 
+	/**
+	 * Outputs the JSON report, either to {@code System.err} (default) or to a file.
+	 */
 	protected void report() {
 		if (reportIssues) {
 			System.err.println("Issues seen: " + reportIssues);
@@ -253,6 +310,11 @@ public class Transformer implements ClassFileTransformer {
 		}
 	}
 
+	/**
+	 * Converts a comma-separated list to a regular list of strings.
+	 * @param csv the input
+	 * @return the result list
+	 */
 	private List<String> toList(final String csv) {
 		return csv != null ? Stream.of(csv.split(",")).toList() : Collections.emptyList();
 	}
