@@ -1,0 +1,10 @@
+{
+  "excludes": [
+    "de/engehausen/ignored/.+",
+    "javax/.+",
+    "org/.+"
+  ],
+  "details": true,
+  "out": "target/report.json",
+  "reportIssues": "false"
+}
