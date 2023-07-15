@@ -323,7 +323,7 @@ public class Transformer implements ClassFileTransformer {
 					details ? entry.getValue() : null)))
 				.filter(entry -> entry.getValue().totalCalls() > 0)
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
-				null
+				meta
 		);
 		try {
 			new ObjectMapper().writeValue(out, reporter.transform(report, meta));
