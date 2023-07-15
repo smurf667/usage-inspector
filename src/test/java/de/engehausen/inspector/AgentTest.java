@@ -18,9 +18,10 @@ import de.engehausen.inspector.data.Report;
 class AgentTest {
 
 	private static final String EXPECTED_CLASS = "de/engehausen/example/ApplicationDemo";
+	private static final String EXPECTED_CLASS_SOURCE = "src/test/java/de/engehausen/example/ApplicationDemo.java";
 
 	@Test
-	void verifyResults() throws IOException {
+	void verifyStandardResults() throws IOException {
 		final Report report = new ObjectMapper().readValue(new File("target/report.json"), Report.class);
 		Assertions.assertNotNull(report, "report not found");
 		final Map<String, ClassInfo> all = report.classes();
@@ -47,6 +48,16 @@ class AgentTest {
 			.filter(str -> str.contains("javax") || str.contains("de/engehausen/ignored"))
 			.findAny();
 		Assertions.assertTrue(illegal.isEmpty(), "report must not contain excluded classes");
+	}
+
+	@Test
+	void verifySourceCorrelator() throws IOException {
+		final Report report = new ObjectMapper().readValue(new File("target/report-with-sources.json"), Report.class);
+		Assertions.assertNotNull(report, "report not found");
+		final Map<String, ClassInfo> all = report.classes();
+		Assertions.assertNotNull(all, "no classes recorded");
+		final ClassInfo info = all.get(EXPECTED_CLASS_SOURCE);
+		Assertions.assertNotNull(info, () -> "%s not recorded".formatted(EXPECTED_CLASS_SOURCE));
 	}
 
 	private static record Entry(String key, int value) {};

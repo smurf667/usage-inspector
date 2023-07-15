@@ -32,6 +32,8 @@ The following configuration options exist
 | `details`      | Include method details                                   | `true`       | `details=false`        | `{ "details": false }`                 |
 | `out`          | Report output filename                                   | `System.err` | `out=report.json`      | `{ "out": "report.json" }`             |
 | `reportIssues` | Output instrumentation issues to `System.err` at VM exit | `true`       | `reportIssues=false`   | `{ "reportIssues": false }`            |
+| `reporter`     | Name of reporter to use; custom via Java service loader  | `identity`   | `reporter=custom`      | `{ "reporter": "custom" }`             |
+| `meta`         | Generic key/value meta data for reporter                 | `{}`         | `meta=filename.json`   | `{ "meta": "filename.json" }`          |
 
 Additional information:
 

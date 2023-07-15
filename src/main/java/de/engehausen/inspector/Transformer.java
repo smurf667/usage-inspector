@@ -15,7 +15,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.ServiceLoader.Provider;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,11 +26,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.engehausen.inspector.data.ClassInfo;
 import de.engehausen.inspector.data.Configuration;
 import de.engehausen.inspector.data.Report;
+import de.engehausen.inspector.data.Reporter;
+import de.engehausen.inspector.reporters.Identity;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -53,6 +59,8 @@ public class Transformer implements ClassFileTransformer {
 	protected final OutputStream out;
 	protected final boolean reportIssues;
 	protected final boolean details; 
+	protected final Reporter<?> reporter;
+	protected final Map<String, Object> meta;
 
 	private static Transformer INSTANCE;
 
@@ -95,9 +103,10 @@ public class Transformer implements ClassFileTransformer {
 				toList(args.get(Configuration.ARG_EXCLUDES)),
 				Boolean.parseBoolean(args.getOrDefault(Configuration.ARG_DETAILS, Boolean.TRUE.toString())),
 				args.get(Configuration.ARG_OUT),
-				args.get(Configuration.ARG_REPORT_ISSUES))
-				)
-			)
+				args.get(Configuration.ARG_REPORT_ISSUES),
+				args.get(Configuration.ARG_REPORTER),
+				toMap(args.get(Configuration.ARG_META)))
+			))
 			.get();
 		excludes = getPattern(configuration.excludes(), "^$");
 		includes = getPattern(configuration.includes(), ".+");
@@ -117,6 +126,18 @@ public class Transformer implements ClassFileTransformer {
 			.map(Boolean::parseBoolean)
 			.orElse(Boolean.TRUE)
 			.booleanValue();
+		meta = configuration.meta();
+		final String reporterName = Optional
+			.ofNullable(configuration.reporter())
+			.orElse(Identity.NAME);
+		reporter = ServiceLoader
+			.load(Reporter.class)
+			.stream()
+			.map(Provider::get)
+			.filter(Objects::nonNull)
+			.filter(candidate -> reporterName.equals(candidate.name()))
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("cannot find reporter '%s'".formatted(reporterName)));
 		INSTANCE = this;
 	}
 
@@ -301,10 +322,11 @@ public class Transformer implements ClassFileTransformer {
 						.sum(),
 					details ? entry.getValue() : null)))
 				.filter(entry -> entry.getValue().totalCalls() > 0)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+				null
 		);
 		try {
-			new ObjectMapper().writeValue(out, report);
+			new ObjectMapper().writeValue(out, reporter.transform(report, meta));
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 		}
@@ -317,6 +339,22 @@ public class Transformer implements ClassFileTransformer {
 	 */
 	private List<String> toList(final String csv) {
 		return csv != null ? Stream.of(csv.split(",")).toList() : Collections.emptyList();
+	}
+
+	/**
+	 * Reads meta information in JSON format from a file
+	 * @param fileName the file to read
+	 * @return the meta information
+	 */
+	private Map<String, Object> toMap(final String fileName) {
+		if (fileName != null) {
+			try {
+				return new ObjectMapper().readValue(new File(fileName), new TypeReference<Map<String, Object>>() {});
+			} catch (IOException e) {
+				e.printStackTrace(System.err);
+			}
+		}
+		return Collections.emptyMap();
 	}
 
 }
