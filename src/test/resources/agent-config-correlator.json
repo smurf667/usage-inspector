@@ -1,0 +1,15 @@
+{
+  "excludes": [
+    "de/engehausen/ignored/.+",
+    "javax/.+",
+    "org/.+"
+  ],
+  "details": true,
+  "out": "target/report-with-sources.json",
+  "reporter": "correlator",
+  "meta": {
+    "sourceRoots": [ "." ],
+    "extensions": [ "java" ]
+  },
+  "reportIssues": "false"
+}

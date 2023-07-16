@@ -94,7 +94,20 @@
 					</execution>
 					<execution>
 						<phase>verify</phase>
-						<id>verify-agent</id>
+						<id>correlator-test</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+ 							<argLine>-javaagent:${project.build.directory}/${project.artifactId}-${project.version}.jar=config=./src/test/resources/agent-config-correlator.json</argLine>
+							<includes>
+								<include>**/*Demo.java</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<phase>verify</phase>
+						<id>verify-agent-reports</id>
 						<goals>
 							<goal>test</goal>
 						</goals>
