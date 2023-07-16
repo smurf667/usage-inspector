@@ -5,8 +5,12 @@ import java.util.Map;
 import de.engehausen.inspector.data.Report;
 import de.engehausen.inspector.data.Reporter;
 
+/**
+ * Performs no transformation on the input report.
+ */
 public class Identity implements Reporter<Report> {
 
+	/** {@code identity} */
 	public static final String NAME = "identity";
 
 	/**

@@ -2,6 +2,11 @@ package de.engehausen.inspector.data;
 
 import java.util.Map;
 
+/**
+ * Reporter interface to output different types of reports.
+ * 
+ * @param <T> the report type
+ */
 public interface Reporter<T> {
 
 	/** Name of the reporter. */

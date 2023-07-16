@@ -32,6 +32,7 @@ public class FileCorrelator implements Reporter<Report> {
 
 	private static final String JAVA_EXTENSION = "java";
 
+	/** {@code correlator} */
 	public static final String NAME = "correlator";
 
 	/** {@code sourceRoots} - a list of source root folders (mandatory) */

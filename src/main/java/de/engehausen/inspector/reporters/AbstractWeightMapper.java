@@ -7,6 +7,7 @@ import de.engehausen.inspector.data.Report;
 import de.engehausen.inspector.data.Reporter;
 
 /**
+ * Maps the classes of a report to weights and returns a list of these.
  */
 public abstract class AbstractWeightMapper implements Reporter<List<AbstractWeightMapper.Weight>> {
 
@@ -35,5 +36,10 @@ public abstract class AbstractWeightMapper implements Reporter<List<AbstractWeig
 	 */
 	public abstract List<Weight> report(final List<Weight> weights, final Map<String, Object> meta);
 
+	/**
+	 * An entry of the weight list.
+	 * @param name the source file name
+	 * @param weight the weight of the class identified by the name
+	 */
 	public record Weight(String name, Number weight) {};
 }
