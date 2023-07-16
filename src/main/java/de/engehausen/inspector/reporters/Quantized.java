@@ -23,7 +23,7 @@ public class Quantized extends AbstractWeightMapper {
 		final double maxD = max;
 		for (int index = 0; index < max; index++) {
 			final Weight weight = weights.get(index);
-			result.add(new Weight(weight.name(), Math.round(steps * index / maxD) / steps));
+			result.add(new Weight(weight.name(), Math.round(steps * (1 + index) / maxD) / steps));
 		}
 		return result;
 	}

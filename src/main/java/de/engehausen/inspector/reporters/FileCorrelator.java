@@ -30,7 +30,7 @@ import de.engehausen.inspector.data.Reporter;
  */
 public class FileCorrelator implements Reporter<Report> {
 
-	private static final String JAVA_EXTENSION = ".java";
+	private static final String JAVA_EXTENSION = "java";
 
 	public static final String NAME = "correlator";
 
@@ -39,7 +39,7 @@ public class FileCorrelator implements Reporter<Report> {
 	/** {@code extensions} - a list of extensions (optional, defaults to {@code [ "java" ]} */
 	public static final String KEY_EXTENSIONS = "extensions";
 	/** {@code notFound} - optional output list of classes that could not be correlated */
-	private static final String KEY_NOT_FOUND = "notFound";
+	public static final String KEY_NOT_FOUND = "notFound";
 
 	/**
 	 * {@inheritDoc}
@@ -72,13 +72,14 @@ public class FileCorrelator implements Reporter<Report> {
 				extensions
 					.stream()
 					.map(extension -> {
-						var suffix = "%s.%s".formatted(key, extension);
+						var suffix = "%s.%s".formatted(key.replace('.', '/'), extension);
 						return sources
 							.stream()
 							.filter(candidate -> candidate.endsWith(suffix))
 							.findFirst()
 							.orElse(null);
 					})
+					.filter(str -> str != null)
 					.findFirst()
 					.ifPresentOrElse(
 						source -> next.put(source, value),
