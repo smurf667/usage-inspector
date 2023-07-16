@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class Threshold extends AbstractWeightMapper {
 
-	public static final String NAME = "percentile";
+	public static final String NAME = "threshold";
 	/** {@code limit} - the threshold limit (0..1), defaults to 0.5 */
 	public static final String KEY_LIMIT = "limit";
 

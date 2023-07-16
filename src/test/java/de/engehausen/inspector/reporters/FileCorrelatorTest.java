@@ -14,11 +14,11 @@ class FileCorrelatorTest {
 
 	@Test
 	void testCorrelation() {
-		final String unknown = "a.b.c.HelloWorld";
+		final String unknown = "a/b/c/HelloWorld";
 		var info = new ClassInfo(0, Collections.emptyMap());
 		var report = new Report(
 			Map.of(
-				FileCorrelatorTest.class.getName(), info,
+				className(FileCorrelatorTest.class), info,
 				unknown, info
 			),
 			Collections.emptyMap()
@@ -33,4 +33,7 @@ class FileCorrelatorTest {
 		Assertions.assertTrue(notFound.contains(unknown));
 	}
 
+	public static String className(final Class<?> clz) {
+		return clz.getName().replace('.', '/');
+	}
 }

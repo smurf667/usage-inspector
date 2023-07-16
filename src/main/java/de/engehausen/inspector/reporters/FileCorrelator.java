@@ -72,7 +72,7 @@ public class FileCorrelator implements Reporter<Report> {
 				extensions
 					.stream()
 					.map(extension -> {
-						var suffix = "%s.%s".formatted(key.replace('.', '/'), extension);
+						var suffix = "%s.%s".formatted(key, extension);
 						return sources
 							.stream()
 							.filter(candidate -> candidate.endsWith(suffix))

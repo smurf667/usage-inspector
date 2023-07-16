@@ -17,8 +17,8 @@ class ThresholdTest {
 	void testLimit() {
 		var report = new Report(
 			Map.of(
-				ThresholdTest.class.getName(), new ClassInfo(25, Collections.emptyMap()),
-				FileCorrelatorTest.class.getName(), new ClassInfo(75, Collections.emptyMap())
+				FileCorrelatorTest.className(ThresholdTest.class), new ClassInfo(25, Collections.emptyMap()),
+				FileCorrelatorTest.className(FileCorrelatorTest.class), new ClassInfo(75, Collections.emptyMap())
 			),
 			Collections.emptyMap()
 		);

@@ -17,9 +17,9 @@ class QuantizedTest {
 	void testPercentiles() {
 		var report = new Report(
 			Map.of(
-				FileCorrelatorTest.class.getName(), new ClassInfo(75, Collections.emptyMap()),
-				PercentileTest.class.getName(), new ClassInfo(25, Collections.emptyMap()),
-				ThresholdTest.class.getName(), new ClassInfo(1, Collections.emptyMap())
+				FileCorrelatorTest.className(FileCorrelatorTest.class), new ClassInfo(75, Collections.emptyMap()),
+				FileCorrelatorTest.className(PercentileTest.class), new ClassInfo(25, Collections.emptyMap()),
+				FileCorrelatorTest.className(ThresholdTest.class), new ClassInfo(1, Collections.emptyMap())
 			),
 			Collections.emptyMap()
 		);
