@@ -1,2 +1,5 @@
 de.engehausen.inspector.reporters.Identity
 de.engehausen.inspector.reporters.FileCorrelator
+de.engehausen.inspector.reporters.Percentile
+de.engehausen.inspector.reporters.Quantized
+de.engehausen.inspector.reporters.Threshold
