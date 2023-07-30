@@ -36,7 +36,7 @@ public class Threshold extends AbstractWeightMapper {
 		final List<Weight> result = new ArrayList<>(weights.size());
 		for (int index = weights.size(); --index >= 0; ) {
 			final Weight weight = weights.get(index);
-			result.add(new Weight(weight.name(), Integer.valueOf(index >= cutOff ? Integer.valueOf(1) : Integer.valueOf(0))));
+			result.add(new Weight(weight.path(), Integer.valueOf(index >= cutOff ? Integer.valueOf(1) : Integer.valueOf(0))));
 		}
 		return result;
 	}

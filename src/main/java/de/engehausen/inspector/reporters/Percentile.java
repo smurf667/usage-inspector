@@ -34,7 +34,7 @@ public class Percentile extends AbstractWeightMapper {
 		for (int index = 0; index < max; index++) {
 			final Weight entry = weights.get(index);
 			result.add(new Weight(
-				entry.name(),
+				entry.path(),
 				Double.valueOf(Math.round(DIV * (1 + index) / maxd) / DIV))
 			);
 		}

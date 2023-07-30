@@ -38,8 +38,8 @@ public abstract class AbstractWeightMapper implements Reporter<List<AbstractWeig
 
 	/**
 	 * An entry of the weight list.
-	 * @param name the source file name
+	 * @param path the source file name
 	 * @param weight the weight of the class identified by the name
 	 */
-	public record Weight(String name, Number weight) {};
+	public record Weight(String path, Number weight) {};
 }

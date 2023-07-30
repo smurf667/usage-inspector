@@ -92,15 +92,15 @@ for `sourceRoots` and `extensions`, a result might look like this:
 ```json
 [
   {
-    "name": "src/test/java/de/engehausen/inspector/reporters/ThresholdTest.java",
+    "path": "src/test/java/de/engehausen/inspector/reporters/ThresholdTest.java",
     "weight": 0.3333
   },
   {
-    "name": "src/test/java/de/engehausen/inspector/reporters/PercentileTest.java",
+    "path": "src/test/java/de/engehausen/inspector/reporters/PercentileTest.java",
     "weight": 0.6667
   },
   {
-    "name": "src/test/java/de/engehausen/inspector/reporters/FileCorrelatorTest.java",
+    "path": "src/test/java/de/engehausen/inspector/reporters/FileCorrelatorTest.java",
     "weight": 1.0
   }
 ]
