@@ -64,7 +64,7 @@ public class FileCorrelator implements Reporter<Report> {
 	public Report transform(final Report report, final Map<String, Object> meta) {
 		final List<String> extensions = extensions(meta.get(KEY_EXTENSIONS));
 		final Set<String> sources = sourceFiles(
-			Path.of(meta.getOrDefault(KEY_SOURCE_ROOT, ".").toString()).normalize().toAbsolutePath(),
+			Path.of(meta.getOrDefault(KEY_SOURCE_ROOT, ".").toString()).toAbsolutePath().normalize(),
 			meta.get(KEY_SOURCE_ROOTS),
 			extensions);
 		final Map<String, ClassInfo> next = new HashMap<>();
@@ -119,7 +119,7 @@ public class FileCorrelator implements Reporter<Report> {
 	}
 
 	protected Stream<String> files(final Path root, final String in, final Set<String> extensions) {
-		final Path base = Paths.get(in);
+		final Path base = root.resolve(Paths.get(in));
 		try {
 			return Files
 				.find(
