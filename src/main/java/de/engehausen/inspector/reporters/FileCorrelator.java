@@ -35,8 +35,10 @@ public class FileCorrelator implements Reporter<Report> {
 	/** {@code correlator} */
 	public static final String NAME = "correlator";
 
-	/** {@code sourceRoots} - a list of source root folders (mandatory) */
+	/** {@code sourceRoots} - a list of source root folders (mandatory), relative to {@link #KEY_SOURCE_ROOT} */
 	public static final String KEY_SOURCE_ROOTS = "sourceRoots";
+	/** {@code root} - the root folder to start scanning for source files  (optional, defaults to {@code "."} */
+	public static final String KEY_SOURCE_ROOT = "root";
 	/** {@code extensions} - a list of extensions (optional, defaults to {@code [ "java" ]} */
 	public static final String KEY_EXTENSIONS = "extensions";
 	/** {@code notFound} - optional output list of classes that could not be correlated */
@@ -61,7 +63,10 @@ public class FileCorrelator implements Reporter<Report> {
 	@Override
 	public Report transform(final Report report, final Map<String, Object> meta) {
 		final List<String> extensions = extensions(meta.get(KEY_EXTENSIONS));
-		final Set<String> sources = sourceFiles(meta.get(KEY_SOURCE_ROOTS), extensions);
+		final Set<String> sources = sourceFiles(
+			Path.of(meta.getOrDefault(KEY_SOURCE_ROOT, ".").toString()).normalize().toAbsolutePath(),
+			meta.get(KEY_SOURCE_ROOTS),
+			extensions);
 		final Map<String, ClassInfo> next = new HashMap<>();
 		final Map<String, Object> metaNext = new HashMap<String, Object>();
 		Optional
@@ -94,34 +99,34 @@ public class FileCorrelator implements Reporter<Report> {
 	}
 
 	protected List<String> extensions(final Object info) {
-		if (info instanceof List<?> list) {
+		if (info instanceof final List<?> list) {
 			return list.stream().map(Object::toString).toList();
 		}
 		return List.of(JAVA_EXTENSION);
 	}
 
-	protected Set<String> sourceFiles(final Object in, final List<String> extensionList) {
-		if (in instanceof List<?> roots) {
+	protected Set<String> sourceFiles(final Path root, final Object in, final List<String> extensionList) {
+		if (in instanceof final List<?> roots) {
 			final Set<String> extensions = new HashSet<>(extensionList);
 			return roots
 				.stream()
 				.map(Object::toString)
-				.flatMap(root -> files(root, extensions)) 
+				.flatMap(folder -> files(root, folder, extensions))
 				.distinct()
 				.collect(Collectors.toSet());
 		}
 		return Collections.emptySet();
 	}
 
-	protected Stream<String> files(final String base, final Set<String> extensions) {
-		final Path root = Paths.get(base);
+	protected Stream<String> files(final Path root, final String in, final Set<String> extensions) {
+		final Path base = Paths.get(in);
 		try {
 			return Files
 				.find(
-					root,
+					base,
 					Integer.MAX_VALUE,
 					(filePath, fileAttr) -> fileAttr.isRegularFile() && extensions.contains(extension(filePath))
-				).map(path -> root.relativize(path))
+				).map(path -> root.relativize(path.toAbsolutePath()))
 				.map(path -> path.toString().replace(File.separatorChar, '/'));
 		} catch (IOException e) {
 			return Stream.empty();
